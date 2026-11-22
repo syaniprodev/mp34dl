@@ -10,8 +10,8 @@ on:
       build_type:
         description: "Tipe build"
         type: choice
-        options: [debug, release]
-        default: debug
+        options: [release, debug]
+        default: release
 
 permissions:
   contents: write # dibutuhkan untuk membuat GitHub Release saat push tag
@@ -48,10 +48,12 @@ jobs:
           if [[ "${GITHUB_REF}" == refs/tags/v* ]]; then
             echo "BUILD_TYPE=release" >> "$GITHUB_ENV"
             echo "VERSION_NAME=${GITHUB_REF_NAME#v}" >> "$GITHUB_ENV"
-          elif [[ "${{ github.event.inputs.build_type }}" == "release" ]]; then
-            echo "BUILD_TYPE=release" >> "$GITHUB_ENV"
-          else
+          elif [[ "${{ github.event_name }}" == "pull_request" ]]; then
             echo "BUILD_TYPE=debug" >> "$GITHUB_ENV"
+          elif [[ "${{ github.event.inputs.build_type }}" == "debug" ]]; then
+            echo "BUILD_TYPE=debug" >> "$GITHUB_ENV"
+          else
+            echo "BUILD_TYPE=release" >> "$GITHUB_ENV"
           fi
           echo "VERSION_CODE=${GITHUB_RUN_NUMBER}" >> "$GITHUB_ENV"
 
